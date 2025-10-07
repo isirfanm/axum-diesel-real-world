@@ -6,6 +6,8 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
+use crate::infra::errors::InfraError;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct PostModel {
     pub id: Uuid,

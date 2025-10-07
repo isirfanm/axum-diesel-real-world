@@ -10,7 +10,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 // Define modules for different parts of the application
 mod config;
 mod domain;
-mod error;
+mod errors;
 mod handlers;
 mod infra;
 mod routes;
@@ -19,7 +19,7 @@ mod utils;
 
 // Import necessary items from modules
 use crate::config::config;
-use crate::error::{AppError, internal_error};
+use crate::errors::{AppError, internal_error};
 use crate::routes::app_router;
 use crate::state::AppState;
 
