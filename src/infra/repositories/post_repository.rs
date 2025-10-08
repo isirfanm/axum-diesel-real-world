@@ -1,7 +1,7 @@
 use deadpool_diesel::postgres::Pool;
 use diesel::{
-    ExpressionMethods, Insertable, PgTextExpressionMethods, QueryDsl, Queryable, RunQueryDsl,
-    Selectable, SelectableHelper,
+    AsChangeset, ExpressionMethods, Insertable, PgTextExpressionMethods, QueryDsl, Queryable,
+    RunQueryDsl, Selectable, SelectableHelper,
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -41,11 +41,17 @@ pub struct PostsFilter {
     title_contains: Option<String>,
 }
 
+// Define a struct for updating posts
+#[derive(Deserialize, AsChangeset)]
+#[diesel(table_name = posts)]
+pub struct UpdatePostDb {
+    pub title: Option<String>,
+    pub body: Option<String>,
+    pub published: Option<bool>,
+}
+
 // Function to insert a new post into the database
-pub async fn insert(
-    pool: &Pool,
-    new_post: NewPostDb,
-) -> Result<PostModel, InfraError> {
+pub async fn insert(pool: &Pool, new_post: NewPostDb) -> Result<PostModel, InfraError> {
     // Get a database connection from the pool and handle any potential errors
     let conn = pool.get().await.map_err(adapt_infra_error)?;
 
@@ -66,10 +72,7 @@ pub async fn insert(
 }
 
 // Function to retrieve a post from the database by its ID
-pub async fn get(
-    pool: &Pool,
-    id: Uuid,
-) -> Result<PostModel, InfraError> {
+pub async fn get(pool: &Pool, id: Uuid) -> Result<PostModel, InfraError> {
     // Get a database connection from the pool and handle any potential errors
     let conn = pool.get().await.map_err(adapt_infra_error)?;
 
@@ -90,10 +93,7 @@ pub async fn get(
 }
 
 // Function to retrieve a list of posts from the database with optional filtering
-pub async fn get_all(
-    pool: &Pool,
-    filter: PostsFilter,
-) -> Result<Vec<PostModel>, InfraError> {
+pub async fn get_all(pool: &Pool, filter: PostsFilter) -> Result<Vec<PostModel>, InfraError> {
     // Get a database connection from the pool and handle any potential errors
     let conn = pool.get().await.map_err(adapt_infra_error)?;
 
@@ -125,6 +125,28 @@ pub async fn get_all(
         .collect();
 
     Ok(posts)
+}
+
+// Function to update an existing post in the database
+pub async fn update(
+    pool: &Pool,
+    id: Uuid,
+    update_post: UpdatePostDb,
+) -> Result<PostModel, InfraError> {
+    let conn = pool.get().await.map_err(adapt_infra_error)?;
+
+    let res = conn
+        .interact(move |conn| {
+            diesel::update(posts::table.filter(posts::id.eq(id)))
+                .set(&update_post)
+                .returning(PostDb::as_returning())
+                .get_result(conn)
+        })
+        .await
+        .map_err(adapt_infra_error)?
+        .map_err(adapt_infra_error)?;
+
+    Ok(adapt_post_db_to_post(res))
 }
 
 // Function to adapt a database representation of a post to the application's domain model

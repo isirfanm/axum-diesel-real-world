@@ -87,3 +87,22 @@ diesel::table! {
 }
 ```
 
+## Testing
+
+```bash
+# create a new post
+curl -X POST -H "Content-Type: application/json" -d '{"title":"first post", "body":"this is the body of my post"}' localhost:3000/v1/posts
+# {"id":"8313961e-7caf-48a6-8ba0-bd9ff0b60953","title":"first post","body":"this is the body of my post","published":false}
+
+# get a specific post by id
+curl -X GET localhost:3000/v1/posts/8313961e-7caf-48a6-8ba0-bd9ff0b60953
+# {"id":"8313961e-7caf-48a6-8ba0-bd9ff0b60953","title":"first post","body":"this is the body of my post","published":false}
+
+# get all posts
+curl -X GET localhost:3000/v1/posts
+# {"posts":[{"id":"8313961e-7caf-48a6-8ba0-bd9ff0b60953","title":"first post","body":"this is the body of my post","published":false}]}
+
+# update a specific post
+curl -v -X PUT -H "Content-Type: application/json" -d '{"published":true}' localhost:3000/v1/posts/8313961e-7caf-48a6-8ba0-bd9ff0b60953
+# {"id":"8313961e-7caf-48a6-8ba0-bd9ff0b60953","title":"first post","body":"this is the body of my post","published":true}
+```

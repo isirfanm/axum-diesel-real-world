@@ -1,12 +1,9 @@
 use axum::{
-    Router,
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, post},
+    http::StatusCode, response::IntoResponse, routing::{get, post, put}, Router
 };
 
 use crate::{
-    handlers::posts::{create_post::create_post, get_post::get_post, list_post::list_posts},
+    handlers::posts::{create_post::create_post, get_post::get_post, list_post::list_posts, update_post::update_post},
     state::AppState,
 };
 
@@ -45,6 +42,8 @@ fn posts_routes(state: AppState) -> Router<AppState> {
         .route("/", get(list_posts))
         // Route for getting a specific post by ID (GET /v1/posts/:id)
         .route("/{id}", get(get_post))
+        // Route for updating a specific post by ID (PUT /v1/posts/:id)
+        .route("/{id}", put(update_post))
         // Attach the application state to the posts router
         .with_state(state)
 }
