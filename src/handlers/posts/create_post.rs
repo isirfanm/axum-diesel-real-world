@@ -5,6 +5,7 @@ use crate::{
     handlers::posts::{CreatePostRequest, PostResponse},
     infra::repositories::post_repository,
     state::AppState,
+    utils::custom_extractors::json_extractor::JsonExtractor,
 };
 
 // Define the handler function for creating a new post

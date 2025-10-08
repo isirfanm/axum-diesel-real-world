@@ -6,6 +6,7 @@ use crate::{
     handlers::posts::PostResponse,
     infra::{errors::InfraError, repositories::post_repository},
     state::AppState,
+    utils::custom_extractors::path_extractor::PathExtractor,
 };
 
 // Define the handler function for retrieving a specific post by ID
